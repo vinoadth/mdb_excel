@@ -106,7 +106,6 @@ def upload_file():
                                 cells[ind] = cells[ind].strip()
                         excel_rows.append(cells)
                     result = {'range': (table + '!A1'), 'values': excel_rows}
-                    print(result)
                     batch_update_values_request_body['data'].append(result)
 
             spreadsheet = service.spreadsheets().create(body=spreadsheet,
