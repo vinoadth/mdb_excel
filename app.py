@@ -1,5 +1,5 @@
 import os, sys, subprocess, time
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask, flash, request, redirect, render_template
 import xlsxwriter
 from werkzeug.utils import secure_filename
 import pickle
@@ -18,6 +18,8 @@ SCOPES = [
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+google_sheet_url = 'https://docs.google.com/spreadsheets/d/'
 
 creds = None
 
@@ -104,6 +106,7 @@ def upload_file():
                                 cells[ind] = cells[ind].strip()
                         excel_rows.append(cells)
                     result = {'range': (table + '!A1'), 'values': excel_rows}
+                    print(result)
                     batch_update_values_request_body['data'].append(result)
 
             spreadsheet = service.spreadsheets().create(body=spreadsheet,
@@ -124,15 +127,7 @@ def upload_file():
                                                 fields='id, parents').execute()
 
             os.remove(DATABASE)
+            result_url = google_sheet_url + file_id
+            return redirect(result_url)
 
-            return redirect(url_for('upload_file',
-                                    filename=filename))
-    return '''
-        <!doctype html>
-        <title>Upload new File</title>
-        <h1>Upload new File</h1>
-        <form method=post enctype=multipart/form-data>
-        <input type=file name=file>
-        <input type=submit value=Upload>
-        </form>
-    '''
+    return render_template('index.html')
